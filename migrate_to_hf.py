@@ -10,7 +10,7 @@ import os
 import shutil
 
 from adapters import AutoAdapterModel
-from adapters.utils import download_cached
+from adapters.utils import download_cached, WEIGHTS_NAME
 from huggingface_hub import HfApi
 import yaml
 
@@ -230,6 +230,9 @@ def migrate_file(
     # create a subfolder for each version in the output
     for version_data in data["files"]:
         version = version_data["version"]
+        if api.file_exists(repo_id=hf_org_name + "/" + adapter_name, filename=WEIGHTS_NAME, revision=version):
+            print(f"Skipping {adapter_name} version {version} as it already exists.")
+            continue
         is_default = version == data["default_version"]
         version_folder = os.path.join(OUTPUT_FOLDER, adapter_name, version)
         os.makedirs(os.path.dirname(version_folder), exist_ok=True)
